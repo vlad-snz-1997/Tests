@@ -49,6 +49,16 @@ def test_create_folder_success():
     response = requests.put(f'{BASE_URL}v1/disk/resources', headers=headers, params={'path': folder_path})
     assert response.status_code in [201, 409]
 
+def test_folder_exists() -> bool:
+    path = folder_path
+    resp = requests.get(f"{BASE_URL}v1/disk/resources", headers=headers, params={"path": path})
+    if resp.status_code == 200:
+        return resp.json().get("type") == "dir"
+    elif resp.status_code == 404:
+        return False
+    else:
+        # Неожиданная ошибка — считаем, что не удалось подтвердить существование
+        raise RuntimeError(f"Не удалось проверить существование папки: {resp.status_code}, {resp.text}")
 
 
 def test_create_folder_invalid_path():
